@@ -1,28 +1,29 @@
+# Number of pod replicas
 replicaCount: 1
 
 image:
-  repository: alonaru/aws-flask-app
+  repository: alonaru/flask-aws-monitor
   tag: latest
   pullPolicy: Always
 
 aws:
-  accessKeyId: ""
-  secretAccessKey: ""
-  defaultRegion: ""
+  # IMPORTANT: Create Kubernetes secret first with your AWS credentials:
+  # kubectl create secret generic aws-credentials \
+  #   --from-literal=AWS_ACCESS_KEY_ID=your_key \
+  #   --from-literal=AWS_SECRET_ACCESS_KEY=your_secret
+  secretName: aws-credentials
+  
+  # TODO: Update this to your AWS region where resources are located
+  # Common values: us-east-1, us-west-2, eu-west-1, eu-central-1, ap-southeast-1
+  defaultRegion: "eu-west-1"  # ⚠️ CHANGE THIS TO YOUR REGION
 
 service:
-  type: LoadBalancer
+  type: NodePort
   port: 5001
-  loadBalancerIP: ""
   nodePort: 30080
 
 ingress:
-  enabled: true
-  className: nginx
-  host: flask.mydomain.com
-  path: /
-  tls: true
-  tlsSecret: flask-tls-secret
+  enabled: false
 
 resources:
   requests:
@@ -31,7 +32,3 @@ resources:
   limits:
     cpu: 500m
     memory: 512Mi
-
-nodeSelector: {}
-tolerations: []
-affinity: {}
