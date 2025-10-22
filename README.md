@@ -144,6 +144,45 @@ kubectl get pods
 kubectl get svc
 kubectl logs -l app=flask-aws-monitor
 
+## CI/CD with Jenkins
+
+### Quick Start
+
+**Step 1: Configure Jenkins Credentials**
+
+In Jenkins web interface:
+1. Go to: **Manage Jenkins** → **Manage Credentials** → **System** → **Global credentials**
+2. Click **Add Credentials**
+3. Fill in:
+   - Kind: `Username with password`
+   - Username: `your-dockerhub-username`
+   - Password: `your-dockerhub-password`
+   - ID: `dockerhub-credentials`
+4. Click **Create**
+
+**Step 2: Create Pipeline Job**
+
+1. Click **New Item**
+2. Enter name: `flask-aws-monitor-pipeline`
+3. Select: **Pipeline**
+4. Click **OK**
+5. In configuration:
+   - **Pipeline** section:
+     - Definition: `Pipeline script from SCM`
+     - SCM: `Git`
+     - Repository URL: `https://github.com/alonaru/finalproject.git`
+     - Branch: `*/main`
+     - Script Path: `Jenkinsfile`
+6. Click **Save**
+
+**Step 3: Run Pipeline**
+
+```bash
+# Click "Build Now" in Jenkins UI
+# Or trigger from command line (if Jenkins CLI configured):
+java -jar jenkins-cli.jar -s http://localhost:8080/ build flask-aws-monitor-pipeline
+
+
 #Documentation
 App Documentation: README.md
 Helm Chart Guide: README.md
