@@ -18,12 +18,23 @@ aws:
   defaultRegion: "eu-west-1"  # ⚠️ CHANGE THIS TO YOUR REGION
 
 service:
-  type: NodePort
+  # Service type will be automatically set based on ingress.enabled:
+  # - If ingress is enabled: ClusterIP
+  # - If ingress is disabled: LoadBalancer
   port: 5001
   nodePort: 30080
 
 ingress:
+  # Set to true to enable Ingress (requires Ingress controller)
+  # Set to false to use LoadBalancer service
   enabled: false
+  className: nginx
+  host: flask.local
+  path: /
+  annotations: {}
+  tls:
+    enabled: false
+    secretName: flask-tls-secret
 
 resources:
   requests:
@@ -32,3 +43,7 @@ resources:
   limits:
     cpu: 500m
     memory: 512Mi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
