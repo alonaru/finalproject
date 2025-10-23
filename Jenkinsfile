@@ -12,7 +12,7 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 echo 'Cloning repository from GitHub...'
-                git branch: 'feature/jenkins-cicd', url: 'https://github.com/alonaru/finalproject.git'
+                git branch: 'dev', url: 'https://github.com/alonaru/finalproject.git'
             }
         }
         
