@@ -12,7 +12,7 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 echo 'Cloning repository from GitHub...'
-                git branch: 'main', url: 'https://github.com/alonaru/finalproject.git'
+                git branch: 'feature/jenkins-cicd', url: 'https://github.com/alonaru/finalproject.git'
             }
         }
         
@@ -59,6 +59,7 @@ pipeline {
                 echo "=== Building Docker Image ==="
                 script {
                     sh """
+                        ls -la
                         docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
                         docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest
                         echo "Docker image built successfully: ${IMAGE_NAME}:${IMAGE_TAG}"
