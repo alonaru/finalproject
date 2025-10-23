@@ -93,7 +93,9 @@ pipeline {
             echo "Pipeline failed! Check logs for details."
         }
         always {
-            sh 'docker system prune -f || true'
+            script {
+                sh 'docker system prune -f || true'
+            }
         }
     }
 }
