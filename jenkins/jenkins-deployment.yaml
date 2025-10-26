@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: custom-jenkins
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: custom-jenkins
+  template:
+    metadata:
+      labels:
+        app: custom-jenkins
+    spec:
+      containers:
+        - name: jenkins
+          image: alonaru/custom-jenkins:latest
+          ports:
+            - containerPort: 8080
+            - containerPort: 50000
+          volumeMounts:
+            - name: jenkins-home
+              mountPath: /var/jenkins_home
+      volumes:
+        - name: jenkins-home
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: custom-jenkins
+spec:
+  type: LoadBalancer
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+    - name: agent
+      port: 50000
+      targetPort: 50000
+  selector:
+    app: custom-jenkins
