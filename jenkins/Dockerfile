@@ -13,9 +13,9 @@ RUN apt-get update && \
 
 # Install Python and pip tools for linting and security
 RUN apt-get update && \
-    apt-get install -y python3 python3-pip shellcheck wget && \
-    pip3 install --no-cache-dir flake8 bandit && \
-    wget -O /usr/local/bin/hadolint https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64 && \
+    apt-get install -y python3 python3-pip shellcheck curl && \
+    pip3 install --no-cache-dir --break-system-packages flake8 bandit && \
+    curl -L -o /usr/local/bin/hadolint https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64 && \
     chmod +x /usr/local/bin/hadolint && \
     rm -rf /var/lib/apt/lists/*
 
