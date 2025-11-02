@@ -23,15 +23,26 @@ pipeline {
                         echo '=== Running Linting Checks ==='
                         sh '''
                             echo "Running Flake8 for Python linting..."
-                            echo "MOCK: flake8 app/ --max-line-length=120"
+                            flake8 app/ --max-line-length=120
                             echo "Python linting completed"
-                            
-                            echo "Running ShellCheck for shell scripts..."
-                            echo "MOCK: shellcheck scripts/*.sh"
+
+                            echo "Running ShellCheck for shell scripts in root and app/..."
+                            found_sh=0
+                            if ls *.sh 1> /dev/null 2>&1; then
+                                shellcheck *.sh
+                                found_sh=1
+                            fi
+                            if ls app/*.sh 1> /dev/null 2>&1; then
+                                shellcheck app/*.sh
+                                found_sh=1
+                            fi
+                            if [ $found_sh -eq 0 ]; then
+                                echo "No shell scripts to lint."
+                            fi
                             echo "Shell script linting completed"
-                            
+
                             echo "Running Hadolint for Dockerfile..."
-                            echo "MOCK: hadolint Dockerfile"
+                            hadolint Dockerfile
                             echo "Dockerfile linting completed"
                         '''
                     }
@@ -42,11 +53,11 @@ pipeline {
                         echo '=== Running Security Scans ==='
                         sh '''
                             echo "Running Bandit for Python security scanning..."
-                            echo "MOCK: bandit -r app/"
+                            bandit -r app/
                             echo "Python security scan completed"
                             
                             echo "Running Trivy for container security..."
-                            echo "MOCK: trivy image ${IMAGE_NAME}:${IMAGE_TAG}"
+                            trivy image ${IMAGE_NAME}:${IMAGE_TAG}
                             echo "Container security scan completed"
                         '''
                     }
