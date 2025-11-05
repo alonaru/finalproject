@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: custom-jenkins
+  name: jenkins-project
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: custom-jenkins
+      app: jenkins-project
   template:
     metadata:
       labels:
-        app: custom-jenkins
+        app: jenkins-project
     spec:
       containers:
         - name: jenkins
-          image: alonaru/custom-jenkins:01
+          image: alonaru/jenkins-project:01
           ports:
             - containerPort: 8080
             - containerPort: 50000
@@ -28,7 +28,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: custom-jenkins
+  name: jenkins-project
 spec:
   type: LoadBalancer
   ports:
@@ -39,4 +39,4 @@ spec:
       port: 50000
       targetPort: 50000
   selector:
-    app: custom-jenkins
+    app: jenkins-project
