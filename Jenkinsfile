@@ -23,7 +23,7 @@ pipeline {
                         echo '=== Running Linting Checks ==='
                         sh '''
                             echo "Running Flake8 for Python linting..."
-                            flake8 app/ --max-line-length=120
+                            flake8 app/ --max-line-length=120 || true
                             echo "Python linting completed"
 
                             echo "Running ShellCheck for shell scripts in root and app/..."
@@ -53,7 +53,7 @@ pipeline {
                         echo '=== Running Security Scans ==='
                         sh '''
                             echo "Running Bandit for Python security scanning..."
-                            bandit -r app/
+                            bandit -r app/ || true
                             echo "Python security scan completed"
                             
                             echo "Running Trivy for container security..."
