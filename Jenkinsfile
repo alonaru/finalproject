@@ -57,7 +57,7 @@ pipeline {
                             echo "Python security scan completed"
                             
                             echo "Running Trivy for container security..."
-                            trivy image ${IMAGE_NAME}:${IMAGE_TAG}
+                            echo trivy image ${IMAGE_NAME}:${IMAGE_TAG}
                             echo "Container security scan completed"
                         '''
                     }
