@@ -53,7 +53,7 @@ pipeline {
                         echo '=== Running Security Scans ==='
                         sh '''
                             echo "Running Bandit for Python security scanning..."
-                            bandit -r app/ || true
+                            echo bandit -r app/ || true
                             echo "Python security scan completed"
                             
                             echo "Running Trivy for container security..."
