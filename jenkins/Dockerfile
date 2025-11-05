@@ -19,6 +19,8 @@ RUN apt-get update && \
     chmod +x /usr/local/bin/hadolint && \
     rm -rf /var/lib/apt/lists/*
 
+ENV PATH="/usr/local/bin:${PATH}"
+
 USER jenkins
 
 # Install Jenkins plugins
