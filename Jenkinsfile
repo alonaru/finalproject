@@ -100,15 +100,15 @@ pipeline {
                 }
             }
         }
-        post {
-            success {
-                echo "Pipeline completed successfully!"
-                echo "Image: ${IMAGE_NAME}:${IMAGE_TAG}"
-                echo "Latest: ${IMAGE_NAME}:latest"
-            }
-            failure {
-                echo "Pipeline failed! Check logs for details."
-            }
+    }
+    post {
+        success {
+            echo "Pipeline completed successfully!"
+            echo "Image: ${IMAGE_NAME}:${IMAGE_TAG}"
+            echo "Latest: ${IMAGE_NAME}:latest"
+        }
+        failure {
+             echo "Pipeline failed! Check logs for details."
         }
     }
 }
