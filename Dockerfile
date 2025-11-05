@@ -19,3 +19,4 @@ COPY app/ .
 EXPOSE 5001
 
 CMD ["python", "describe_resources.py"]
+#comment
