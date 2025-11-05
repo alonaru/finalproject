@@ -53,7 +53,7 @@ pipeline {
                         echo '=== Running Security Scans ==='
                         sh '''
                             echo "Running Bandit for Python security scanning..."
-                            echo bandit -r app/ || true
+                            bandit -r app/ || true
                             echo "Python security scan completed"
                             
                             echo "Running Trivy for container security..."
@@ -65,35 +65,41 @@ pipeline {
             }
         }
         
-        stage('Build Docker Image') {
+        stage('Build and Push with Kaniko') {
+            agent {
+                kubernetes {
+                    yaml """
+        apiVersion: v1
+        kind: Pod
+        spec:
+        containers:
+            - name: kaniko
+            image: gcr.io/kaniko-project/executor:latest
+            command:
+                - cat
+            tty: true
+            volumeMounts:
+                - name: kaniko-secret
+                mountPath: /kaniko/.docker
+        volumes:
+            - name: kaniko-secret
+            secret:
+                secretName: regcred
+        """
+                }
+            }
             steps {
-                echo "=== Building Docker Image ==="
-                script {
-                    sh """
-                        ls -la
-                        docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
-                        docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest
-                        echo "Docker image built successfully: ${IMAGE_NAME}:${IMAGE_TAG}"
-                    """
+                container('kaniko') {
+                    sh '''
+                        /kaniko/executor \
+                        --context `pwd` \
+                        --dockerfile `pwd`/Dockerfile \
+                        --destination=${IMAGE_NAME}:${IMAGE_TAG} \
+                        --destination=${IMAGE_NAME}:latest
+                    '''
                 }
             }
         }
-        
-        stage('Push to Docker Hub') {
-            steps {
-                echo "=== Pushing to Docker Hub ==="
-                script {
-                    sh """
-                        echo \$DOCKERHUB_CREDENTIALS_PSW | docker login -u \$DOCKERHUB_CREDENTIALS_USR --password-stdin
-                        docker push ${IMAGE_NAME}:${IMAGE_TAG}
-                        docker push ${IMAGE_NAME}:latest
-                        echo "Images pushed successfully to Docker Hub"
-                        docker logout
-                    """
-                }
-            }
-        }
-    }
     
     post {
         success {
