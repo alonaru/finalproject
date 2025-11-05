@@ -12,7 +12,7 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 echo 'Cloning repository from GitHub...'
-                git branch: 'feature/fixcode', url: 'https://github.com/alonaru/finalproject.git'
+                git url: 'https://github.com/alonaru/finalproject.git'
             }
         }
         
