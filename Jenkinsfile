@@ -7,7 +7,8 @@ def apptag = "${env.BUILD_NUMBER}"
 podTemplate(
   containers: [
     containerTemplate(name: 'jnlp', image: 'jenkins/inbound-agent', ttyEnabled: true),
-    containerTemplate(name: 'docker', image: 'docker:20.10.16', ttyEnabled: true, command: 'cat'),
+    containerTemplate(name: 'lintsec', image: 'python:3.11-slim', ttyEnabled: true, command: 'cat'),
+    containerTemplate(name: 'trivy', image: 'get.trivy.dev/trivy:0.67.0', ttyEnabled: true, command: 'cat'),
     containerTemplate(name: 'kaniko', image: 'gcr.io/kaniko-project/executor:debug-v0.19.0', command: '/busybox/cat', ttyEnabled: true)
   ],
   volumes: [
@@ -25,30 +26,37 @@ podTemplate(
     stage('Parallel Checks') {
       parallel (
         "Linting": {
-          container('docker') {
+          container('lintsec') {
             sh '''
               echo "Running Flake8 for Python linting..."
-              docker run --rm -v $PWD/app:/app python:3.11-slim bash -c "pip install flake8 && flake8 /app --max-line-length=120"
+              pip install flake8
+              flake8 app --max-line-length=120
               echo "Python linting completed"
 
               echo "Running Hadolint for Dockerfile..."
-              docker run --rm -v $PWD:/workspace hadolint/hadolint hadolint /workspace/Dockerfile
+              wget -O /usr/local/bin/hadolint https://github.com/hadolint/hadolint/releases/latest/download/hadolint-Linux-x86_64
+              chmod +x /usr/local/bin/hadolint
+              hadolint Dockerfile
               echo "Dockerfile linting completed"
             '''
           }
         },
         "Security Scan": {
-          container('docker') {
+            container('lintsec') {
             sh '''
-              echo "Running Bandit for Python security scanning..."
-              docker run --rm -v $PWD/app:/app python:3.11-slim bash -c "pip install bandit && bandit -r /app"
-              echo "Python security scan completed"
-
-              echo "Running Trivy for container security..."
-              docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image ${appimage}:${apptag} || true
-              echo "Container security scan completed"
+                echo "Running Bandit for Python security scanning..."
+                pip install bandit
+                bandit -r /app
+                echo "Python security scan completed"
             '''
-          }
+            }
+            container('trivy') {
+            sh '''
+                echo "Running Trivy for container security..."
+                trivy fs /workspace || true
+                echo "Container security scan completed"
+            '''
+            }
         }
       )
     }
@@ -57,10 +65,10 @@ podTemplate(
       container('kaniko') {
         sh """
           /kaniko/executor \
+            --force \
             --context `pwd` \
             --dockerfile `pwd`/Dockerfile \
-            --destination=${appimage}:${apptag} \
-            --destination=${appimage}:latest
+            --destination=${appimage}:${apptag}
         """
       }
     }
