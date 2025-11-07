@@ -1,194 +1,68 @@
-# Flask AWS Resource Monitor - Final DevOps Project
-
-## Overview
-A Flask web application that displays AWS resources (EC2 instances, VPCs, Load Balancers, AMIs) deployed using Docker and Kubernetes.
-
-## Features
-- Lists EC2 instances with state, type, and public IP
-- Displays VPCs with CIDR blocks
-- Shows Load Balancers and DNS names
-- Lists available AMIs
-- Multi-stage Docker build for optimized images
-- Kubernetes deployment with Helm charts
-- Secure credential management with K8s Secrets
+### CI/CD Application
 
 ## Prerequisites
+1. Kubernetes Cluster (Minikube, GKE, or other)
+2. `kubectl` and `helm` installed and configured
+3. Docker Hub account with a Personal Access Token (Read, Write, Delete)
+4. GitHub repository with:
+   - `Dockerfile`
+   - `app/` directory (your code)
+   - `requirements.txt`
+   - `Jenkinsfile`
 
-### Required Software
-- Docker Desktop or Docker Engine
-- Kubernetes (Minikube or Docker Desktop K8s)
-- kubectl CLI tool
-- Helm 3+ (optional, for Helm deployment)
-- Git
+# Prepering Jenkins CI/CD
+1. installing Jenkins
 
-### AWS Requirements
-- AWS Account
-- IAM user with the following permissions:
-  - AmazonEC2ReadOnlyAccess
-  - AmazonVPCReadOnlyAccess
-  - ElasticLoadBalancingReadOnly
+helm repo add jenkinsci https://charts.jenkins.io
+helm repo update
+helm install jenkins jenkinsci/jenkins
 
-## Project Structure
+2. get the admin password
 
-finalproject/
-├── app/
-│ ├── describe_resources.py
-│ ├── requirements.txt
-│ └── README.md
-├── helm/
-│ ├── Chart.yaml
-│ ├── values.yaml
-│ ├── templates/
-│ └── README.md
-├── Dockerfile
-├── .gitignore
-└── README.md
+kubectl get secret jenkins -o jsonpath="{.data.jenkins-admin-password}" | base64 --decode
 
-## Quick Start
+3. port-forward jenkins UI:
 
-### Option 1: Run with Docker
+kubectl port-forward svc/jenkins 8080:8080
+*for cloudshell need to activate web preview*
+browse to http://localhost:8080
 
-```bash
-# 1. Clone repository
-git clone https://github.com/alonaru/finalproject.git
-cd finalproject
+# Prepare Docker Hub Credentials
+1. Generate the base64 string:
+echo -n "alonaru:YOUR_TOKEN" | base64
 
-# 2. Create .env file with AWS credentials
-cat > .env << ENVFILE
-AWS_ACCESS_KEY_ID=your_access_key_here
-AWS_SECRET_ACCESS_KEY=your_secret_key_here
-ENVFILE
+2. Create a config.json file:
 
-# 3. Build Docker image
-docker build -t flask-aws-monitor:latest .
+run nano config.json
+paste the string belog to config.json
 
-# 4. Run container
-docker run -p 5001:5001 --env-file .env flask-aws-monitor:latest
+{
+  "auths": {
+    "https://index.docker.io/v1/": {
+      "auth": "BASE64_OF_alonaru:YOUR_TOKEN"
+    }
+  }
+}
 
-# 5. Access: http://localhost:5001
+3. Create Kubernetes Secret for Kaniko
+kubectl create secret generic kaniko-secret \
+  --from-file=config.json=config.json
 
-###Option 2: Deploy to Kubernetes
-# 1. Create Kubernetes secret
-kubectl create secret generic aws-credentials \
-  --from-literal=AWS_ACCESS_KEY_ID=your_key \
-  --from-literal=AWS_SECRET_ACCESS_KEY=your_secret
+to verify run:
+kubectl get secret kaniko-secret -o yaml
 
-# 2. Update AWS region in helm/values.yaml
+4. Configure Jenkins Pipeline
+go to repo https://github.com/alonaru/finalproject.git
+verify this line exist in jenkinsfile at root directory
 
-# 3. Deploy with Helm
-helm install flask-aws-monitor ./helm
+secretVolume(mountPath: '/kaniko/.docker/', secretName: 'kaniko-secret')
 
-# 4. Get service URL
-minikube service flask-aws-monitor --url
+# Install Jenkins plugin
+jenkins in this guide installed as vanilla, if needed install nessery plugin.
 
 
-# 1. Create Kubernetes secret
-kubectl create secret generic aws-credentials \
-  --from-literal=AWS_ACCESS_KEY_ID=your_key \
-  --from-literal=AWS_SECRET_ACCESS_KEY=your_secret
+# Run Your Jenkins Pipeline
 
-# 2. Update AWS region in helm/values.yaml
-
-# 3. Deploy with Helm
-helm install flask-aws-monitor ./helm
-
-# 4. Get service URL
-minikube service flask-aws-monitor --url
-
-## Configuration
-
-### AWS Region
-The application defaults to eu-west-1. To use a different region, edit helm/values.yaml:
-
-```yaml
-aws:
-  defaultRegion: "us-east-1"  # Change to your region
-
-Common regions: us-east-1, us-west-2, eu-west-1, eu-central-1
-
-Environment Variables
-Variable	Description	Required
-AWS_ACCESS_KEY_ID	AWS Access Key	Yes
-AWS_SECRET_ACCESS_KEY	AWS Secret Key	Yes
-
-Security Best Practices
-DO:
-
-Use Kubernetes Secrets for credentials
-Keep .env file local (never commit to Git)
-Use IAM users with read-only permissions
-Rotate credentials regularly
-DONT:
-
-Commit .env or credentials to Git
-Use root AWS account credentials
-Give write permissions to IAM user
-
-
-## Troubleshooting
-
-### NoCredentialsError
-Problem: Application shows "Unable to locate credentials"
-
-Solution:
-- Docker: Ensure .env file exists with valid credentials
-- Kubernetes: Verify secret exists with: kubectl get secret aws-credentials
-
-### Port Already in Use
-```bash
-lsof -i :5001
-# Kill the process or use a different port
-
-Kubernetes Service Not Found
-kubectl get pods
-kubectl get svc
-kubectl logs -l app=flask-aws-monitor
-
-## CI/CD with Jenkins
-
-### Quick Start
-
-**Step 1: Configure Jenkins Credentials**
-
-In Jenkins web interface:
-1. Go to: **Manage Jenkins** → **Manage Credentials** → **System** → **Global credentials**
-2. Click **Add Credentials**
-3. Fill in:
-   - Kind: `Username with password`
-   - Username: `your-dockerhub-username`
-   - Password: `your-dockerhub-password`
-   - ID: `dockerhub-credentials`
-4. Click **Create**
-
-**Step 2: Create Pipeline Job**
-
-1. Click **New Item**
-2. Enter name: `flask-aws-monitor-pipeline`
-3. Select: **Pipeline**
-4. Click **OK**
-5. In configuration:
-   - **Pipeline** section:
-     - Definition: `Pipeline script from SCM`
-     - SCM: `Git`
-     - Repository URL: `https://github.com/alonaru/finalproject.git`
-     - Branch: `*/main`
-     - Script Path: `Jenkinsfile`
-6. Click **Save**
-
-**Step 3: Run Pipeline**
-
-```bash
-# Click "Build Now" in Jenkins UI
-# Or trigger from command line (if Jenkins CLI configured):
-java -jar jenkins-cli.jar -s http://localhost:8080/ build flask-aws-monitor-pipeline
-
-
-#Documentation
-App Documentation: README.md
-Helm Chart Guide: README.md
-
-#Author
-Alon Arusi
-
-#Acknowledgments
-DevOps Final Project
+create new item use the repo 
+https://github.com/alonaru/finalproject.git
+and the current branch
