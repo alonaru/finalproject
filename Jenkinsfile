@@ -10,7 +10,7 @@ podTemplate(
     containerTemplate(name: 'kaniko', image: 'gcr.io/kaniko-project/executor:latest', command: "cat", ttyEnabled: true)
   ],
   volumes: [
-    configMapVolume(mountPath: '/kaniko/.docker/', configMapName: 'docker-cred')
+    secretVolume(mountPath: '/kaniko/.docker/', secretName: 'docker-cred')
   ]
 ) {
   node(POD_LABEL) {
