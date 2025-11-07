@@ -210,3 +210,5 @@ get_helm.sh
 
 # Jenkins credentials
 jenkins/.env
+jenkins/
+jenkinsfile_org
