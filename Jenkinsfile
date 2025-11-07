@@ -34,6 +34,7 @@ podTemplate(
               echo "Python linting completed"
 
               echo "Running Hadolint for Dockerfile..."
+              apt-get update && apt-get install -y wget
               wget -O /usr/local/bin/hadolint https://github.com/hadolint/hadolint/releases/latest/download/hadolint-Linux-x86_64
               chmod +x /usr/local/bin/hadolint
               hadolint Dockerfile || true
