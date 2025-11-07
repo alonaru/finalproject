@@ -7,7 +7,7 @@ def apptag = "${env.BUILD_NUMBER}"
 podTemplate(
   containers: [
     containerTemplate(name: 'jnlp', image: 'jenkins/inbound-agent', ttyEnabled: true),
-    containerTemplate(name: 'kaniko', image: 'gcr.io/kaniko-project/executor:latest', args: ["sleep", "infinity"], ttyEnabled: true)
+    containerTemplate(name: 'kaniko', image: 'gcr.io/kaniko-project/executor:latest', args: 'sleep infinity', ttyEnabled: true)
   ],
   volumes: [
     secretVolume(mountPath: '/kaniko/.docker/', secretName: 'docker-cred')
