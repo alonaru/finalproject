@@ -53,7 +53,7 @@ podTemplate(
             container('trivy') {
             sh '''
                 echo "Running Trivy for container security..."
-                trivy fs /workspace || true
+                trivy fs $PWD || true
                 echo "Container security scan completed"
             '''
             }
