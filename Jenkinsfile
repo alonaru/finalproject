@@ -7,6 +7,7 @@ def apptag = "${env.BUILD_NUMBER}"
 podTemplate(
   containers: [
     containerTemplate(name: 'jnlp', image: 'jenkins/inbound-agent', ttyEnabled: true),
+    containerTemplate(name: 'docker', image: 'docker:20.10.16', ttyEnabled: true, command: 'cat'),
     containerTemplate(name: 'kaniko', image: 'gcr.io/kaniko-project/executor:debug-v0.19.0', command: '/busybox/cat', ttyEnabled: true)
   ],
   volumes: [
@@ -24,7 +25,7 @@ podTemplate(
     stage('Parallel Checks') {
       parallel (
         "Linting": {
-          container('jnlp') {
+          container('docker') {
             sh '''
               echo "Running Flake8 for Python linting..."
               docker run --rm -v $PWD/app:/app python:3.11-slim bash -c "pip install flake8 && flake8 /app --max-line-length=120"
@@ -37,7 +38,7 @@ podTemplate(
           }
         },
         "Security Scan": {
-          container('jnlp') {
+          container('docker') {
             sh '''
               echo "Running Bandit for Python security scanning..."
               docker run --rm -v $PWD/app:/app python:3.11-slim bash -c "pip install bandit && bandit -r /app"
