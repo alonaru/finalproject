@@ -12,7 +12,7 @@ podTemplate(
     containerTemplate(name: 'kaniko', image: 'gcr.io/kaniko-project/executor:debug-v0.19.0', command: '/busybox/cat', ttyEnabled: true)
   ],
   volumes: [
-    secretVolume(mountPath: '/kaniko/.docker/', secretName: 'docker-cred', items: [keyToPath(key: '.dockerconfigjson', path: 'config.json')])
+    secretVolume(mountPath: '/kaniko/.docker/', secretName: 'docker-cred', subPath: '.dockerconfigjson')
   ]
 ) {
   node(POD_LABEL) {
