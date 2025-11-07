@@ -8,7 +8,7 @@ podTemplate(
   containers: [
     containerTemplate(name: 'jnlp', image: 'jenkins/inbound-agent', ttyEnabled: true),
     containerTemplate(name: 'lintsec', image: 'python:3.11-slim', ttyEnabled: true, command: 'cat'),
-    containerTemplate(name: 'trivy', image: 'get.trivy.dev/trivy:0.67.0', ttyEnabled: true, command: 'cat'),
+    containerTemplate(name: 'trivy', image: 'aquasec/trivy:0.67.0', ttyEnabled: true, command: 'cat'),
     containerTemplate(name: 'kaniko', image: 'gcr.io/kaniko-project/executor:debug-v0.19.0', command: '/busybox/cat', ttyEnabled: true)
   ],
   volumes: [
