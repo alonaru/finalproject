@@ -24,30 +24,35 @@ This directory contains the Helm chart for deploying the Flask AWS Resource Moni
 
    Edit [`values.yaml`](values.yaml) to set your Docker image, AWS region, and other options as needed.
 
-3. **Install the Helm Chart**
+3. **Install or Upgrade the Helm Chart**
 
    From the project root:
    ```sh
-   helm install flask-aws-monitor ./helm
+   helm upgrade --install flask-aws-monitor ./helm
    ```
 
 4. **Access the Application**
 
-   If ingress is disabled (default), forward the service port:
-   ```sh
-   kubectl port-forward svc/flask-aws-monitor 5001:5001
-   ```
-   Then open [http://localhost:5001] in your browser.
+   - **If Ingress is enabled** (`ingress.enabled: true` in `values.yaml`):  
+     Access your app via the configured host (e.g., http://flask.local/).  
+     Make sure your Ingress controller is running and your `/etc/hosts` or DNS is set up if needed.
+   - **If Ingress is disabled**:  
+     Forward the service port:
+     ```sh
+     kubectl port-forward svc/flask-aws-monitor 5001:5001
+     ```
+     Then open [http://localhost:5001](http://localhost:5001) in your browser.
 
 ## Notes
 
 - To upgrade after changes:
   ```sh
-  helm upgrade flask-aws-monitor ./helm
+  helm upgrade --install flask-aws-monitor ./helm
   ```
 - To uninstall:
   ```sh
   helm uninstall flask-aws-monitor
   ```
+- Make sure your `deployment.yaml` includes the `env` section to inject AWS credentials from the secret.
 
 See [`values.yaml`](values.yaml) for all configuration options.
