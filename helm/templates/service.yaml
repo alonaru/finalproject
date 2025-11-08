@@ -3,7 +3,11 @@ kind: Service
 metadata:
   name: {{ .Release.Name }}
 spec:
+  {{- if .Values.ingress.enabled }}
+  type: ClusterIP
+  {{- else }}
   type: LoadBalancer
+  {{- end }}
   ports:
     - port: {{ .Values.service.port }}
       targetPort: {{ .Values.service.port }}
