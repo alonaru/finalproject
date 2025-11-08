@@ -73,12 +73,5 @@ podTemplate(
         """
       }
     }
-
-    // Optional: Add deploy stage if needed
-    // stage('Deploy') {
-    //   container('kaniko') {
-    //     echo "Deploy step goes here"
-    //   }
-    // }
   }
 }
