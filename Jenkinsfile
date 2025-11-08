@@ -62,12 +62,6 @@ podTemplate(
       )
     }
 
-    stage('Debug Kaniko Auth') {
-      container('kaniko') {
-        sh 'cat /kaniko/.docker/config.json'
-      }
-    }
-
     stage('Build and push with Kaniko') {
       container('kaniko') {
         sh """
