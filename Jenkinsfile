@@ -75,7 +75,7 @@ podTemplate(
             --force \
             --context `pwd` \
             --dockerfile `pwd`/Dockerfile \
-            --destination=${appimage}:latest
+            --destination=${appimage}:latest \
             --no-push
         """
       }
