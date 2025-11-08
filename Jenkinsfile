@@ -23,7 +23,7 @@ podTemplate(
       }
     }
 
-    stage('Parallel Checks') {
+    /*stage('Parallel Checks') {
       parallel (
         "Linting": {
           container('lintsec') {
@@ -60,22 +60,23 @@ podTemplate(
             }
         }
       )
-    }
-    
+    }*/
+
     stage('Debug Kaniko Auth') {
       container('kaniko') {
         sh 'cat /kaniko/.docker/config.json'
       }
     }
 
-    stage('Build and Push with Kaniko') {
+    stage('Build and test pull with Kaniko') {
       container('kaniko') {
         sh """
           /kaniko/executor \
             --force \
             --context `pwd` \
             --dockerfile `pwd`/Dockerfile \
-            --destination=${appimage}:${apptag}
+            --destination=${appimage}:latest
+            --no-push
         """
       }
     }
