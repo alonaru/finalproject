@@ -27,7 +27,7 @@ service:
 ingress:
   # Set to true to enable Ingress (requires Ingress controller)
   # Set to false to use LoadBalancer service
-  enabled: false
+  enabled: true
   className: nginx
   host: flask.local
   path: /
