@@ -68,15 +68,14 @@ podTemplate(
       }
     }
 
-    stage('Build and test pull with Kaniko') {
+    stage('Build and push with Kaniko') {
       container('kaniko') {
         sh """
           /kaniko/executor \
             --force \
             --context `pwd` \
             --dockerfile `pwd`/Dockerfile \
-            --destination=${appimage}:latest \
-            --verbosity=debug
+            --destination=${appimage}:latest
         """
       }
     }
