@@ -47,7 +47,7 @@ browse to http://localhost:8080
 
 
 ## Prepare Docker Hub Credentials
-### Option 1 Authenticate to Docker Hub
+### Authenticate to Docker Hub
 ```sh
 docker login --username=<your-docker-username>
 ```
@@ -71,9 +71,8 @@ https://docs.docker.com/go/credential-store/
 Login Succeeded
 =================================================
 
-***or create file manualy using next actions***
 
-### Option 2 Create `config.json` manually (optional)
+### Create `config.json` manually must for Pods running
 Generate the base64 string:
 ```sh
 echo -n "alonaru:YOUR_TOKEN" | base64
