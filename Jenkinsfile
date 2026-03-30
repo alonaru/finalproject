@@ -2,6 +2,7 @@ def appname = "flask-aws-monitor"
 def repo = "alonaru"  // Your DockerHub username
 def artifactory = "docker.io"
 def appimage = "${artifactory}/${repo}/${appname}"
+def stableTag = "latest"
 def apptag = "${env.BUILD_NUMBER}"
 
 podTemplate(
@@ -62,14 +63,22 @@ podTemplate(
       )
     }
 
-    stage('Build and push with Kaniko') {
-      container('kaniko') {
+      stage('Build and push with Kaniko') {
+        container('kaniko') {
         sh """
+          echo "Pushing stable tag: ${stableTag}"
           /kaniko/executor \
             --force \
             --context `pwd` \
             --dockerfile `pwd`/Dockerfile \
-            --destination=${appimage}:${apptag} || true
+            --destination=${appimage}:${stableTag}
+
+          echo "Pushing version tag: ${versionTag}"
+          /kaniko/executor \
+            --force \
+            --context `pwd` \
+            --dockerfile `pwd`/Dockerfile \
+            --destination=${appimage}:${versionTag} || true
         """
       }
     }
