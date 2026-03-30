@@ -3,7 +3,7 @@ def repo = "alonaru"  // Your DockerHub username
 def artifactory = "docker.io"
 def appimage = "${artifactory}/${repo}/${appname}"
 def stableTag = "latest"
-def apptag = "${env.BUILD_NUMBER}"
+def versionTag = "${env.BUILD_NUMBER}"
 
 podTemplate(
   containers: [
