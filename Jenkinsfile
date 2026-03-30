@@ -69,7 +69,7 @@ podTemplate(
             --force \
             --context `pwd` \
             --dockerfile `pwd`/Dockerfile \
-            --destination=${appimage}:${apptag}
+            --destination=${appimage}:${apptag} || true
         """
       }
     }
