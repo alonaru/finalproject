@@ -3,7 +3,7 @@ def repo = "alonaru"  // Your DockerHub username
 def artifactory = "docker.io"
 def appimage = "${artifactory}/${repo}/${appname}"
 def stableTag = "latest"
-def versionTag = "${env.BUILD_NUMBER}"
+//def versionTag = "${env.BUILD_NUMBER}"
 
 podTemplate(
   containers: [
@@ -66,19 +66,12 @@ podTemplate(
       stage('Build and push with Kaniko') {
         container('kaniko') {
         sh """
-          echo "Pushing stable tag: ${stableTag}"
+          echo "Tagging and pushing new tag:latest"
           /kaniko/executor \
             --force \
             --context `pwd` \
             --dockerfile `pwd`/Dockerfile \
-            --destination=${appimage}:${stableTag}
-
-          echo "Pushing version tag: ${versionTag}"
-          /kaniko/executor \
-            --force \
-            --context `pwd` \
-            --dockerfile `pwd`/Dockerfile \
-            --destination=${appimage}:${versionTag} || true
+            --destination=${appimage}:latest
         """
       }
     }
