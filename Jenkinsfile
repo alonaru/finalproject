@@ -2,7 +2,7 @@ def appname = "flask-aws-monitor"
 def repo = "alonaru"  // Your DockerHub username
 def artifactory = "docker.io"
 def appimage = "${artifactory}/${repo}/${appname}"
-def stableTag = "latest"
+def stableTag = "test"
 //def versionTag = "${env.BUILD_NUMBER}"
 
 podTemplate(
@@ -71,7 +71,7 @@ podTemplate(
             --force \
             --context `pwd` \
             --dockerfile `pwd`/Dockerfile \
-            --destination=${appimage}:latest
+            --destination=${appimage}:${stableTag}
         """
       }
     }
